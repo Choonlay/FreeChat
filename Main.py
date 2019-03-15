@@ -80,8 +80,8 @@ def send_msg(to_user_name, festival):
     itchat.send_msg(random_happy_content(festival), toUserName=to_user_name)
     if (random_sample[0] == 1):
         itchat.send_image(os.path.join(PICTURE_PATH, random.choice(os.listdir(PICTURE_PATH))), toUserName=to_user_name)
-    #if (random_sample[1] == 1):
-        #itchat.send('@fil@' + os.path.join(SONG_PATH, random.choice(os.listdir(SONG_PATH))), toUserName=to_user_name)
+    if (random_sample[1] == 1):
+        itchat.send('@fil@' + os.path.join(SONG_PATH, random.choice(os.listdir(SONG_PATH))), toUserName=to_user_name)
     head_image_uri = HEAD_PATH + to_user_name + '.jpg'
     print(head_image_uri)
     if (not os.path.exists(head_image_uri)):
