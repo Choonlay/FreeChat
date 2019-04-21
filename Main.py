@@ -3,6 +3,7 @@ import re
 import mysql.connector
 import random
 import os
+import time
 from itchat.content import *
 from concurrent.futures import ThreadPoolExecutor
 
@@ -17,6 +18,9 @@ festivalList = []
 happyList = []
 happyContentList = []
 db = mysql.connector.connect(host='localhost', user='root', passwd='root', db='free_chat')
+careTimeMap = {}
+waitTime = 1 * 60
+waitTimeInterval = 5
 
 
 def is_admin(msg):
@@ -26,6 +30,23 @@ def is_admin(msg):
 def set_status(status_code):
     global status
     status = status_code
+
+def saoraoHandle(object):
+    global careTimeMap
+    careTimeMap[object] = waitTime
+    while True:
+        tempTime = 0
+        while tempTime > careTimeMap[object]:
+            time.sleep(waitTimeInterval)
+            tempTime += waitTimeInterval
+        if (careTimeMap[object] == 0):
+            itchat.send_msg('略略略', toUserName=object)
+            careTimeMap[object] = waitTime
+        itchat.send_msg('^_^', toUserName=object)
+
+def saorao(object):
+    global executor
+    executor.submit(saoraoHandle, object)
 
 
 def admin_control(msg):
@@ -58,6 +79,10 @@ def admin_control(msg):
                     friends = itchat.search_friends(commandList[1])
                     if (len(friends) > 0):
                         send_msg(friends[0]['UserName'], 1)
+                elif (re.search('sr', command)):
+                    srObject = itchat.search_friends(commandList[1])
+                    if (len(srObject) > 0):
+                        saorao(srObject[0]['UserName'])
                 else:
                     itchat.send_msg('command not found', toUserName=msg['ToUserName'])
         elif (msg['Type'] == 'Picture'):
@@ -108,6 +133,10 @@ def route(msg):
         admin_control(msg)
     else:
         if (status == START):
+            #add care feature
+            global careTimeMap
+            careTimeMap[fromUserName] = 0
+
             festival = match_festival(msg['Content'])
             if (festival != -1):
                 global executor
